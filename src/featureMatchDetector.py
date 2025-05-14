@@ -38,6 +38,7 @@ class featureMatchDetector(Vision, Reconfigurable):
     MODEL: ClassVar[Model] = Model(ModelFamily("viam-labs", "detector"), "feature-match-detector")
     
     source_image_path: str
+    default_camera: str
     source_keypoints: dict
     source_descriptors: dict
 
@@ -56,13 +57,18 @@ class featureMatchDetector(Vision, Reconfigurable):
             raise Exception("A source_image_path must be defined")
         if not Path(source_image_path).exists():
             raise Exception("Invalid source_image_path: " + source_image_path)
-        return
+        camera_name = config.attributes.fields["camera_name"].string_value
+        if camera_name == "":
+            rause Exception("a default camera 'camera_name' is necessary") 
+        return [camera_name]
         
     # Handles attribute reconfiguration
     def reconfigure(self, config: ComponentConfig, dependencies: Mapping[ResourceName, ResourceBase]):
         self.source_image_path = config.attributes.fields["source_image_path"].string_value
         self.init_source_image()
         self.min_good_matches = config.attributes.fields["min_good_matches"].number_value or 15
+        camera_name = config.attributes.fields["camera_name"].string_value
+        self.default_camera = camera_name
         self.DEPS = dependencies
         return
 
@@ -70,7 +76,9 @@ class featureMatchDetector(Vision, Reconfigurable):
         self,
         camera_name: str
     ) -> ViamImage:
-        actual_cam = self.DEPS[Camera.get_resource_name(camera_name)]
+        actual_cam = self.DEPS[Camera.get_resource_name(self.default_camera)]
+        if camera_name != "":
+            actual_cam = self.DEPS[Camera.get_resource_name(camera_name)]
         cam = cast(Camera, actual_cam)
         cam_image = await cam.get_image(mime_type="image/jpeg")
         return cam_image
