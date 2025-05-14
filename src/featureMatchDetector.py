@@ -59,7 +59,7 @@ class featureMatchDetector(Vision, Reconfigurable):
             raise Exception("Invalid source_image_path: " + source_image_path)
         camera_name = config.attributes.fields["camera_name"].string_value
         if camera_name == "":
-            rause Exception("a default camera 'camera_name' is necessary") 
+            raise Exception("a default camera 'camera_name' is necessary") 
         return [camera_name]
         
     # Handles attribute reconfiguration

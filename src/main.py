@@ -3,12 +3,20 @@ import sys
 
 from viam.module.module import Module
 from viam.services.vision import Vision
-from .featureMatchDetector import featureMatchDetector
+from viam.resource.registry import Registry, ResourceCreatorRegistration
+from src.featureMatchDetector import featureMatchDetector
 
 async def main():
     """This function creates and starts a new module, after adding all desired resources.
     Resources must be pre-registered. For an example, see the `__init__.py` file.
     """
+    Registry.register_resource_creator(
+        Vision.SUBTYPE, 
+        featureMatchDetector.MODEL,
+        ResourceCreatorRegistration(
+            featureMatchDetector.new, featureMatchDetector.validate
+        ),
+    )
     module = Module.from_args()
     module.add_model_from_registry(Vision.SUBTYPE, featureMatchDetector.MODEL)
     await module.start()

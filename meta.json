@@ -9,5 +9,5 @@
       "model": "viam-labs:detector:feature-match-detector"
     }
   ],
-  "entrypoint": "run.sh"
+  "entrypoint": "dist/main"
 }
